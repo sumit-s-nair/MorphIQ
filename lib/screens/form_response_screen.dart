@@ -23,9 +23,10 @@ class SubmitFormPageState extends State<SubmitFormPage> {
   }
 
   Future<Map<String, dynamic>> _fetchFormData() async {
-    final formRef = FirebaseFirestore.instance.collection('forms').doc(widget.formId);
+    final formRef =
+        FirebaseFirestore.instance.collection('forms').doc(widget.formId);
     final formSnapshot = await formRef.get();
-    
+
     if (formSnapshot.exists) {
       return formSnapshot.data()!;
     } else {
@@ -38,7 +39,8 @@ class SubmitFormPageState extends State<SubmitFormPage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('You must be logged in to submit the form')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('You must be logged in to submit the form')));
         return;
       }
 
@@ -50,10 +52,16 @@ class SubmitFormPageState extends State<SubmitFormPage> {
         'submittedAt': FieldValue.serverTimestamp(),
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Form submitted successfully!')));
-      Navigator.pop(context); // Go back after submission
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Form submitted successfully!')));
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error submitting form: ${e.toString()}')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error submitting form: ${e.toString()}')));
+      }
     }
   }
 
@@ -82,7 +90,8 @@ class SubmitFormPageState extends State<SubmitFormPage> {
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 elevation: 8,
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 600),
@@ -106,7 +115,10 @@ class SubmitFormPageState extends State<SubmitFormPage> {
                         ),
                         child: Text(
                           form['title'],
-                          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -119,7 +131,8 @@ class SubmitFormPageState extends State<SubmitFormPage> {
                           itemBuilder: (context, index) {
                             final field = fields[index];
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
                               child: _buildFormField(field),
                             );
                           },
@@ -134,7 +147,8 @@ class SubmitFormPageState extends State<SubmitFormPage> {
                           label: const Text('Submit'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
-                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 12),
                             textStyle: const TextStyle(fontSize: 16),
                           ),
                         ),
@@ -252,7 +266,10 @@ class SubmitFormPageState extends State<SubmitFormPage> {
         );
         if (selectedDate != null) {
           setState(() {
-            _dateController.text = selectedDate.toLocal().toString().split(' ')[0]; // Format date as yyyy-mm-dd
+            _dateController.text = selectedDate
+                .toLocal()
+                .toString()
+                .split(' ')[0]; // Format date as yyyy-mm-dd
             _responses[field['label']] = selectedDate.toString();
           });
         }

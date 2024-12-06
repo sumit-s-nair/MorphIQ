@@ -4,6 +4,7 @@ import 'package:morph_iq/screens/auth/forgot_password.dart';
 import 'package:morph_iq/screens/auth/login_screen.dart';
 import 'package:morph_iq/screens/auth/signup_screen.dart';
 import 'package:morph_iq/screens/create_form_screen.dart';
+import 'package:morph_iq/screens/form/form_details_screen.dart';
 import 'package:morph_iq/screens/form_response_screen.dart';
 import 'package:morph_iq/screens/home_screen.dart';
 
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
           );
         }
         // Default route handling
-        return null; // or return a default route if not matched
+        return null;
       },
       initialRoute: '/',
       routes: {
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         '/forgot-password': (context) => const PasswordRecoveryScreen(),
         '/home': (context) => const HomePage(),
         '/create-form': (context) => const CreateFormPage(),
+        '/form-details': (context) => const FormDetailsPage(),
       },
     );
   }

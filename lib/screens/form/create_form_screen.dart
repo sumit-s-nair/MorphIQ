@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'form_field_options.dart';
+import 'package:morph_iq/screens/form_field_options.dart'; // Import field types
 
 class CreateFormPage extends StatefulWidget {
-  const CreateFormPage({super.key});
+  final Map<String, dynamic> form;
+  const CreateFormPage({super.key, required this.form});
 
   @override
   CreateFormPageState createState() => CreateFormPageState();
@@ -17,43 +17,46 @@ class CreateFormPageState extends State<CreateFormPage> {
   // Firestore instance
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize form fields and title from the passed form data
+    formFields = List<Map<String, dynamic>>.from(widget.form['fields']);
+    formNameController.text = widget.form['title'];
+  }
+
   void _addField(String fieldType) {
     setState(() {
-      // Initialize options for specific field types
-      List<String>? options =
-          (fieldType == 'mcq' || fieldType == 'multi_select') ? [''] : null;
+      void onOptionsChanged(List<String> options) {
+        int index =
+            formFields.indexWhere((field) => field['type'] == fieldType);
+        if (index != -1) {
+          setState(() {
+            formFields[index]['options'] = options;
+          });
+        }
+      }
 
-      // Create the new field map
       Map<String, dynamic> newField = {
         'type': fieldType,
         'label': '${fieldType.capitalize()} Field',
-        'options': options,
+        'input': buildFieldInput(fieldType, onOptionsChanged),
+        'options':
+            (fieldType == 'mcq' || fieldType == 'multi_select') ? [''] : null,
       };
 
-      // Add the new field to the list
-      formFields.add(newField);
+      if (fieldType == 'mcq' || fieldType == 'multi_select') {
+        newField['options'] = [''];
+      }
 
-      // Update the 'input' key after the field is added
-      int newIndex = formFields.length - 1;
-      formFields[newIndex]['input'] = buildFieldInput(
-        fieldType,
-        (updatedOptions) {
-          // Update the options of the correct field
-          setState(() {
-            formFields[newIndex]['options'] = updatedOptions;
-          });
-        },
-      );
+      formFields.add(newField);
     });
   }
 
-  void _createForm() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    // Create the form structure to save to Firestore
+  void _updateForm() async {
+    // Update the form structure in Firestore
     final formData = {
       'title': formNameController.text,
-      'createdBy': user?.uid ?? 'guest',
-      'createdAt': FieldValue.serverTimestamp(),
       'fields': formFields.map((field) {
         return {
           'type': field['type'],
@@ -64,16 +67,20 @@ class CreateFormPageState extends State<CreateFormPage> {
     };
 
     try {
-      // Add the form to Firestore
-      await _firestore.collection('forms').add(formData);
+      // Update the form in Firestore
+      await _firestore
+          .collection('forms')
+          .doc(widget.form['id'])
+          .update(formData);
 
+      // Navigate back to the previous screen
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating form: $e')),
+          SnackBar(content: Text('Error updating form: $e')),
         );
       }
     }
@@ -90,11 +97,11 @@ class CreateFormPageState extends State<CreateFormPage> {
             Navigator.pushReplacementNamed(context, '/home');
           },
         ),
-        title: const Text('Create Form', style: TextStyle(color: Colors.white)),
+        title: const Text('Edit Form', style: TextStyle(color: Colors.white)),
         actions: [
           IconButton(
             icon: const Icon(Icons.check, color: Colors.blueAccent),
-            onPressed: _createForm, // Trigger form creation
+            onPressed: _updateForm,
           ),
         ],
       ),

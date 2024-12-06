@@ -55,9 +55,9 @@ Widget buildFieldInput(String fieldType, void Function(List<String>) onOptionsCh
   }
 }
 
-// MCQ Field - Dynamic Add/Delete Options
+// MCQ Field
 class MCQField extends StatefulWidget {
-  final ValueChanged<List<String>> onOptionsChanged; // A callback to send options back
+  final ValueChanged<List<String>> onOptionsChanged;
 
   const MCQField({super.key, required this.onOptionsChanged});
 
@@ -66,7 +66,7 @@ class MCQField extends StatefulWidget {
 }
 
 class MCQFieldState extends State<MCQField> {
-  List<TextEditingController> controllers = [TextEditingController(), TextEditingController(), TextEditingController()];
+  List<TextEditingController> controllers = [];
 
   void _addField() {
     setState(() {
@@ -76,7 +76,7 @@ class MCQFieldState extends State<MCQField> {
   }
 
   void _removeField(int index) {
-    if (controllers.length > 1) {
+    if (controllers.isNotEmpty) {
       setState(() {
         controllers.removeAt(index);
       });
@@ -106,6 +106,11 @@ class MCQFieldState extends State<MCQField> {
                         borderSide: BorderSide(color: Colors.blueAccent),
                       ),
                     ),
+                    onChanged: (_) {
+                      widget.onOptionsChanged(
+                        controllers.map((controller) => controller.text).toList(),
+                      );
+                    },
                   ),
                 ),
                 IconButton(
@@ -125,9 +130,9 @@ class MCQFieldState extends State<MCQField> {
   }
 }
 
-// Multi Select Field - Dynamic Add/Delete Options
+// Multi Select Field
 class MultiSelectField extends StatefulWidget {
-  final ValueChanged<List<String>> onOptionsChanged; // A callback to send options back
+  final ValueChanged<List<String>> onOptionsChanged;
 
   const MultiSelectField({super.key, required this.onOptionsChanged});
 
@@ -136,7 +141,7 @@ class MultiSelectField extends StatefulWidget {
 }
 
 class MultiSelectFieldState extends State<MultiSelectField> {
-  List<TextEditingController> controllers = [TextEditingController(), TextEditingController(), TextEditingController()];
+  List<TextEditingController> controllers = [];
 
   void _addField() {
     setState(() {
@@ -146,7 +151,7 @@ class MultiSelectFieldState extends State<MultiSelectField> {
   }
 
   void _removeField(int index) {
-    if (controllers.length > 1) {
+    if (controllers.isNotEmpty) {
       setState(() {
         controllers.removeAt(index);
       });
@@ -163,7 +168,7 @@ class MultiSelectFieldState extends State<MultiSelectField> {
         ...controllers.asMap().entries.map((entry) {
           int index = entry.key;
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8.0), // Padding between fields
+            padding: const EdgeInsets.only(bottom: 8.0),
             child: Row(
               children: [
                 Expanded(
@@ -176,6 +181,11 @@ class MultiSelectFieldState extends State<MultiSelectField> {
                         borderSide: BorderSide(color: Colors.blueAccent),
                       ),
                     ),
+                    onChanged: (_) {
+                      widget.onOptionsChanged(
+                        controllers.map((controller) => controller.text).toList(),
+                      );
+                    },
                   ),
                 ),
                 IconButton(
@@ -215,7 +225,7 @@ class DatePickerFieldState extends State<DatePickerField> {
     );
     if (picked != null && picked != DateTime.now()) {
       setState(() {
-        controller.text = "${picked.toLocal()}".split(' ')[0]; // Display date as YYYY-MM-DD
+        controller.text = "${picked.toLocal()}".split(' ')[0];
       });
     }
   }
@@ -250,7 +260,7 @@ class CountryCodeNumberField extends StatefulWidget {
 }
 
 class CountryCodeNumberFieldState extends State<CountryCodeNumberField> {
-  String _selectedCountryCode = '+1'; // Default country code (USA)
+  String _selectedCountryCode = '+91';
   TextEditingController controller = TextEditingController();
 
   @override

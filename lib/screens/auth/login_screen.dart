@@ -22,8 +22,8 @@ class LoginScreenState extends State<LoginScreen>
   bool _obscurePassword = true;
 
   // Color palette
-  final Color primaryColor = const Color(0xFF1E3A8A); // Dark Blue
-  final Color accentColor = const Color(0xFF10B981); // Light Green
+  final Color primaryColor = const Color(0xFF1E3A8A);
+  final Color accentColor = const Color(0xFF10B981);
   final Color errorColor = Colors.redAccent;
 
   // Animation variables
@@ -65,7 +65,11 @@ class LoginScreenState extends State<LoginScreen>
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Navigate to the main screen after login
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {
@@ -93,7 +97,9 @@ class LoginScreenState extends State<LoginScreen>
 
       // Sign in with Firebase using the credentials
       await FirebaseAuth.instance.signInWithCredential(credential);
-      Navigator.pushReplacementNamed(context, '/home');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {
@@ -112,7 +118,6 @@ class LoginScreenState extends State<LoginScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Animated Brand Name
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: ScaleTransition(
@@ -147,7 +152,7 @@ class LoginScreenState extends State<LoginScreen>
                 ),
                 const SizedBox(height: 4),
 
-                // Forgot Password Button (aligned to the right)
+                // Forgot Password Button
                 Container(
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: Align(
@@ -232,9 +237,9 @@ class LoginScreenState extends State<LoginScreen>
     required bool isPassword,
   }) {
     return Container(
-      width: double.infinity, // Ensures full-width input
+      width: double.infinity,
       constraints:
-          const BoxConstraints(maxWidth: 400), // Max width for larger screens
+          const BoxConstraints(maxWidth: 400),
       child: TextField(
         controller: controller,
         obscureText: isPassword ? _obscurePassword : false,
@@ -269,7 +274,7 @@ class LoginScreenState extends State<LoginScreen>
     );
   }
 
-  // Widget to build buttons (Login, Google sign-in)
+  // Widget to build buttons
   Widget _buildButton({
     required String label,
     required VoidCallback? onPressed,
@@ -277,16 +282,16 @@ class LoginScreenState extends State<LoginScreen>
     Color backgroundColor = Colors.blueAccent,
   }) {
     return Container(
-      width: double.infinity, // Ensures full-width button
+      width: double.infinity,
       constraints:
-          const BoxConstraints(maxWidth: 400), // Max width for larger screens
+          const BoxConstraints(maxWidth: 400),
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: icon != null ? Icon(icon, color: Colors.white) : Container(),
         label: Text(
           label,
           style: const TextStyle(
-              color: Colors.white), // Explicitly set white text color
+              color: Colors.white),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,

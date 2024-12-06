@@ -47,7 +47,6 @@ class PasswordRecoveryScreenState extends State<PasswordRecoveryScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Animated Brand Name
                 Text(
                   'MorphIQ',
                   style: GoogleFonts.montserrat(
@@ -96,8 +95,8 @@ class PasswordRecoveryScreenState extends State<PasswordRecoveryScreen> {
     required bool isPassword,
   }) {
     return Container(
-      width: double.infinity, // Ensures full-width input
-      constraints: const BoxConstraints(maxWidth: 400), // Max width for larger screens
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 400),
       child: TextField(
         controller: controller,
         obscureText: isPassword ? true : false,
@@ -117,14 +116,13 @@ class PasswordRecoveryScreenState extends State<PasswordRecoveryScreen> {
     );
   }
 
-  // Widget to build buttons (Reset, etc.)
   Widget _buildButton({
     required String label,
     required VoidCallback? onPressed,
   }) {
     return Container(
-      width: double.infinity, // Ensures full-width button
-      constraints: const BoxConstraints(maxWidth: 400), // Max width for larger screens
+      width: double.infinity,
+      constraints: const BoxConstraints(maxWidth: 400),
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
@@ -136,7 +134,7 @@ class PasswordRecoveryScreenState extends State<PasswordRecoveryScreen> {
         ),
         child: Text(
           label,
-          style: const TextStyle(color: Colors.white), // Explicitly set white text color
+          style: const TextStyle(color: Colors.white),
         ),
       ),
     );

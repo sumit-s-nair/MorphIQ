@@ -22,7 +22,7 @@ class SignUpScreenState extends State<SignUpScreen>
   bool _isLoading = false;
   String? _errorMessage;
   bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true; // Change this to final
+  bool _obscureConfirmPassword = true;
 
   // Animation variables
   late AnimationController _controller;
@@ -68,7 +68,10 @@ class SignUpScreenState extends State<SignUpScreen>
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Navigate to the main screen after sign up
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {
@@ -81,10 +84,11 @@ class SignUpScreenState extends State<SignUpScreen>
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
         clientId:
-            '95411355053-lekorcvtk023dfai7n5h90tec992miuu.apps.googleusercontent.com', // Use your actual client ID here
+            '95411355053-lekorcvtk023dfai7n5h90tec992miuu.apps.googleusercontent.com',
       );
+
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return; // User canceled sign-in
+      if (googleUser == null) return;
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
@@ -96,8 +100,11 @@ class SignUpScreenState extends State<SignUpScreen>
 
       // Sign in with Firebase using the credentials
       await FirebaseAuth.instance.signInWithCredential(credential);
-      Navigator.pushReplacementNamed(context, '/home');
-      
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {
@@ -116,7 +123,6 @@ class SignUpScreenState extends State<SignUpScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Animated Brand Name
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: ScaleTransition(
@@ -157,7 +163,7 @@ class SignUpScreenState extends State<SignUpScreen>
                   hintText: 'Confirm Password',
                   icon: FontAwesomeIcons.lock,
                   isPassword: true,
-                  obscurePassword: _obscureConfirmPassword, // Use it here
+                  obscurePassword: _obscureConfirmPassword,
                 ),
                 const SizedBox(height: 4),
 
@@ -228,15 +234,15 @@ class SignUpScreenState extends State<SignUpScreen>
     required String hintText,
     required IconData icon,
     required bool isPassword,
-    bool obscurePassword = true, // New parameter
+    bool obscurePassword = true,
   }) {
     return Container(
-      width: double.infinity, // Ensures full-width input
+      width: double.infinity,
       constraints:
-          const BoxConstraints(maxWidth: 400), // Max width for larger screens
+          const BoxConstraints(maxWidth: 400),
       child: TextField(
         controller: controller,
-        obscureText: isPassword ? obscurePassword : false, // Use the parameter
+        obscureText: isPassword ? obscurePassword : false,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.white),
           suffixIcon: isPassword
@@ -273,7 +279,7 @@ class SignUpScreenState extends State<SignUpScreen>
     );
   }
 
-  // Widget to build buttons (Sign Up, Google sign-in)
+  // Widget to build buttons
   Widget _buildButton({
     required String label,
     required VoidCallback? onPressed,
@@ -281,16 +287,16 @@ class SignUpScreenState extends State<SignUpScreen>
     Color backgroundColor = Colors.blueAccent,
   }) {
     return Container(
-      width: double.infinity, // Ensures full-width button
+      width: double.infinity,
       constraints:
-          const BoxConstraints(maxWidth: 400), // Max width for larger screens
+          const BoxConstraints(maxWidth: 400),
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: icon != null ? Icon(icon, color: Colors.white) : Container(),
         label: Text(
           label,
           style: const TextStyle(
-              color: Colors.white), // Explicitly set white text color
+              color: Colors.white),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,

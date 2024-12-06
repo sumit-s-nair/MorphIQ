@@ -21,7 +21,7 @@ class HomePageState extends State<HomePage> {
       // Get current user ID
       final userId = FirebaseAuth.instance.currentUser?.uid;
       if (userId == null) {
-        // Handle case if the user is not logged in
+        Navigator.pushReplacementNamed(context, '/');
         return;
       }
 
@@ -46,11 +46,13 @@ class HomePageState extends State<HomePage> {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error fetching forms: ${e.toString()}'),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error fetching forms: ${e.toString()}'),
+          ),
+        );
+      }
     }
   }
 
@@ -58,22 +60,24 @@ class HomePageState extends State<HomePage> {
   void _logout() async {
     try {
       await FirebaseAuth.instance.signOut();
-      if (context.mounted) {
+      if (mounted) {
         Navigator.pushReplacementNamed(context, '/');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logout failed: ${e.toString()}'),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logout failed: ${e.toString()}'),
+          ),
+        );
+      }
     }
   }
 
   @override
   void initState() {
     super.initState();
-    _getUserForms(); // Fetch forms when the page loads
+    _getUserForms();
   }
 
   @override
@@ -120,7 +124,8 @@ class HomePageState extends State<HomePage> {
         children: [
           // Search Bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
             child: SizedBox(
               width: maxWidth,
               child: TextField(
@@ -171,7 +176,7 @@ class HomePageState extends State<HomePage> {
                       final form = _forms[index];
                       if (_searchQuery.isNotEmpty &&
                           !form['title'].toLowerCase().contains(_searchQuery)) {
-                        return const SizedBox(); // Skip forms that don't match the search query
+                        return const SizedBox();
                       }
                       return _buildFormTile(form);
                     },
@@ -192,11 +197,15 @@ class HomePageState extends State<HomePage> {
   Widget _buildFormTile(Map<String, dynamic> form) {
     return GestureDetector(
       onTap: () {
-        // Navigate to form details screen
+        // Navigate to form details screen with the form's ID
         Navigator.pushNamed(
           context,
           '/form-details',
-          arguments: form, // Passing form details to the next screen
+          arguments: {
+            'id': form['id'],
+            'title': form['title'],
+            'fields': form['fields'],
+          },
         );
       },
       child: Card(
