@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -9,10 +10,51 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final List<String> _forms = ['Survey Form', 'Feedback Form', 'Quiz Form'];
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  List<Map<String, dynamic>> _forms = [];
+  bool _isLoading = true;
 
+  // Fetch forms from Firestore
+  Future<void> _getUserForms() async {
+    try {
+      // Get current user ID
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        // Handle case if the user is not logged in
+        return;
+      }
+
+      // Fetch forms from Firestore collection where the user ID matches
+      final formSnapshot = await FirebaseFirestore.instance
+          .collection('forms')
+          .where('createdBy', isEqualTo: userId)
+          .get();
+
+      setState(() {
+        _forms = formSnapshot.docs
+            .map((doc) => {
+                  'id': doc.id,
+                  'title': doc['title'],
+                  'createdAt': doc['createdAt'],
+                  'fields': doc['fields'],
+                })
+            .toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching forms: ${e.toString()}'),
+        ),
+      );
+    }
+  }
+
+  // Log out function
   void _logout() async {
     try {
       await FirebaseAuth.instance.signOut();
@@ -26,6 +68,12 @@ class HomePageState extends State<HomePage> {
         ),
       );
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserForms(); // Fetch forms when the page loads
   }
 
   @override
@@ -114,19 +162,21 @@ class HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 16),
           // Forms List
-          Expanded(
-            child: ListView.builder(
-              itemCount: _forms.length,
-              itemBuilder: (context, index) {
-                final form = _forms[index];
-                if (_searchQuery.isNotEmpty &&
-                    !form.toLowerCase().contains(_searchQuery)) {
-                  return const SizedBox(); // Skip forms that don't match the search query
-                }
-                return _buildFormTile(form);
-              },
-            ),
-          ),
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Expanded(
+                  child: ListView.builder(
+                    itemCount: _forms.length,
+                    itemBuilder: (context, index) {
+                      final form = _forms[index];
+                      if (_searchQuery.isNotEmpty &&
+                          !form['title'].toLowerCase().contains(_searchQuery)) {
+                        return const SizedBox(); // Skip forms that don't match the search query
+                      }
+                      return _buildFormTile(form);
+                    },
+                  ),
+                ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -139,10 +189,15 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildFormTile(String formName) {
+  Widget _buildFormTile(Map<String, dynamic> form) {
     return GestureDetector(
       onTap: () {
         // Navigate to form details screen
+        Navigator.pushNamed(
+          context,
+          '/form-details',
+          arguments: form, // Passing form details to the next screen
+        );
       },
       child: Card(
         color: Colors.grey[850],
@@ -150,7 +205,7 @@ class HomePageState extends State<HomePage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         child: ListTile(
           title: Text(
-            formName,
+            form['title'],
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
