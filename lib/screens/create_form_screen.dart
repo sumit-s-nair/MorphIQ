@@ -151,33 +151,47 @@ class CreateFormPageState extends State<CreateFormPage> {
                 ),
                 const SizedBox(height: 20),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: formFields.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        color: Colors.grey[850],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ListTile(
-                          leading: const Icon(Icons.drag_handle,
-                              color: Colors.blueAccent),
-                          title: Text(
-                            formFields[index]['label'],
-                            style: const TextStyle(color: Colors.white),
+                  child: ReorderableListView(
+                    onReorder: _onReorder,
+                    children: [
+                      for (int index = 0; index < formFields.length; index++)
+                        Card(
+                          key: ValueKey(index),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          color: Colors.grey[850],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          subtitle: formFields[index]['input'],
-                          trailing: IconButton(
-                            icon: const Icon(Icons.edit,
+                          child: ListTile(
+                            leading: const Icon(Icons.drag_handle,
                                 color: Colors.blueAccent),
-                            onPressed: () {
-                              _showLabelEditor(index);
-                            },
+                            title: Text(
+                              formFields[index]['label'],
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: formFields[index]['input'],
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit,
+                                      color: Colors.blueAccent),
+                                  onPressed: () {
+                                    _showLabelEditor(index);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    _deleteField(index);
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      );
-                    },
+                    ],
                   ),
                 ),
                 FloatingActionButton(
@@ -200,6 +214,12 @@ class CreateFormPageState extends State<CreateFormPage> {
       }
       final item = formFields.removeAt(oldIndex);
       formFields.insert(newIndex, item);
+    });
+  }
+
+  void _deleteField(int index) {
+    setState(() {
+      formFields.removeAt(index);
     });
   }
 
