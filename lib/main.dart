@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:morph_iq/screens/auth/forgot_password.dart';
 import 'package:morph_iq/screens/auth/login_screen.dart';
 import 'package:morph_iq/screens/auth/signup_screen.dart';
+import 'package:morph_iq/screens/home_screen.dart';
 
 import 'firebase_options.dart';
 
@@ -21,7 +23,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
       ),
-      home: const AuthScreen(),
+      // Define routes
+      routes: {
+        '/': (context) => const AuthScreen(),
+        '/forgot-password': (context) => const PasswordRecoveryScreen(),
+        '/home': (context) => const HomePage(),
+      },
+      initialRoute: '/',
     );
   }
 }
@@ -45,7 +53,11 @@ class AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return _isLogin
-        ? LoginScreen(onSignUpPressed: _toggleAuthScreen)
-        : SignUpScreen(onSignInPressed: _toggleAuthScreen);
+        ? LoginScreen(
+            onSignUpPressed: _toggleAuthScreen,
+          )
+        : SignUpScreen(
+            onSignInPressed: _toggleAuthScreen,
+          );
   }
 }

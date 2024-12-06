@@ -93,8 +93,7 @@ class LoginScreenState extends State<LoginScreen>
 
       // Sign in with Firebase using the credentials
       await FirebaseAuth.instance.signInWithCredential(credential);
-      // Navigate to the main screen after successful login
-      // Example: Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/home');
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {
@@ -155,7 +154,7 @@ class LoginScreenState extends State<LoginScreen>
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // Handle forgot password action
+                        Navigator.pushNamed(context, '/forgot-password');
                       },
                       child: const Text(
                         "Forgot password?",
