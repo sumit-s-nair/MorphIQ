@@ -132,7 +132,7 @@ class HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blueAccent,
         onPressed: () {
-          // Navigate to form creation screen
+          Navigator.pushNamed(context, '/create-form');
         },
         child: const Icon(Icons.add, color: Colors.white),
       ),

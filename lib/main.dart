@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:morph_iq/screens/auth/forgot_password.dart';
 import 'package:morph_iq/screens/auth/login_screen.dart';
 import 'package:morph_iq/screens/auth/signup_screen.dart';
+import 'package:morph_iq/screens/create_form_screen.dart';
 import 'package:morph_iq/screens/home_screen.dart';
 
 import 'firebase_options.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const AuthScreen(),
         '/forgot-password': (context) => const PasswordRecoveryScreen(),
         '/home': (context) => const HomePage(),
+        '/create-form': (context) => const CreateFormPage(),
       },
       initialRoute: '/',
     );
