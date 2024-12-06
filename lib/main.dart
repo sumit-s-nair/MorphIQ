@@ -4,6 +4,7 @@ import 'package:morph_iq/screens/auth/forgot_password.dart';
 import 'package:morph_iq/screens/auth/login_screen.dart';
 import 'package:morph_iq/screens/auth/signup_screen.dart';
 import 'package:morph_iq/screens/create_form_screen.dart';
+import 'package:morph_iq/screens/form_response_screen.dart';
 import 'package:morph_iq/screens/home_screen.dart';
 
 import 'firebase_options.dart';
@@ -25,13 +26,24 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
       ),
       // Define routes
+      onGenerateRoute: (settings) {
+        final uri = Uri.parse(settings.name ?? '');
+        if (uri.pathSegments.length == 2 && uri.pathSegments.first == 'forms') {
+          final formId = uri.pathSegments[1];
+          return MaterialPageRoute(
+            builder: (context) => SubmitFormPage(formId: formId),
+          );
+        }
+        // Default route handling
+        return null; // or return a default route if not matched
+      },
+      initialRoute: '/',
       routes: {
         '/': (context) => const AuthScreen(),
         '/forgot-password': (context) => const PasswordRecoveryScreen(),
         '/home': (context) => const HomePage(),
         '/create-form': (context) => const CreateFormPage(),
       },
-      initialRoute: '/',
     );
   }
 }
