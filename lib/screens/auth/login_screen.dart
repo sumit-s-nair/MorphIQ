@@ -6,15 +6,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onSignUpPressed;
+  final VoidCallback onLoginSuccess;
 
-  const LoginScreen({super.key, required this.onSignUpPressed});
+  const LoginScreen({super.key, required this.onSignUpPressed, required this.onLoginSuccess});
 
   @override
   LoginScreenState createState() => LoginScreenState();
 }
 
-class LoginScreenState extends State<LoginScreen>
-    with SingleTickerProviderStateMixin {
+class LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -67,7 +67,7 @@ class LoginScreenState extends State<LoginScreen>
       );
 
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        widget.onLoginSuccess();
       }
 
     } on FirebaseAuthException catch (e) {
@@ -81,13 +81,11 @@ class LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = true);
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        clientId:
-            '95411355053-lekorcvtk023dfai7n5h90tec992miuu.apps.googleusercontent.com', // Use your actual client ID here
+        clientId: '95411355053-lekorcvtk023dfai7n5h90tec992miuu.apps.googleusercontent.com',
       );
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) return; // User canceled sign-in
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
       // Create Firebase credentials using Google token
       final AuthCredential credential = GoogleAuthProvider.credential(
@@ -98,7 +96,7 @@ class LoginScreenState extends State<LoginScreen>
       // Sign in with Firebase using the credentials
       await FirebaseAuth.instance.signInWithCredential(credential);
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        widget.onLoginSuccess();
       }
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = e.message);
@@ -238,8 +236,7 @@ class LoginScreenState extends State<LoginScreen>
   }) {
     return Container(
       width: double.infinity,
-      constraints:
-          const BoxConstraints(maxWidth: 400),
+      constraints: const BoxConstraints(maxWidth: 400),
       child: TextField(
         controller: controller,
         obscureText: isPassword ? _obscurePassword : false,
@@ -283,15 +280,13 @@ class LoginScreenState extends State<LoginScreen>
   }) {
     return Container(
       width: double.infinity,
-      constraints:
-          const BoxConstraints(maxWidth: 400),
+      constraints: const BoxConstraints(maxWidth: 400),
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: icon != null ? Icon(icon, color: Colors.white) : Container(),
         label: Text(
           label,
-          style: const TextStyle(
-              color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,

@@ -87,13 +87,17 @@ class HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.grey[900],
+        backgroundColor: const Color.fromRGBO(38, 38, 38, 1), // Updated color
         toolbarHeight: 70,
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.description, color: Colors.blueAccent, size: 30),
-            SizedBox(width: 8),
-            Text(
+            Image.asset(
+              'assets/images/icon.png', // Replacing the form icon
+              width: 30,
+              height: 30,
+            ),
+            const SizedBox(width: 8),
+            const Text(
               'MorphIQ',
               style: TextStyle(
                 color: Colors.white,

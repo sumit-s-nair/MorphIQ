@@ -6,19 +6,18 @@ import 'package:google_fonts/google_fonts.dart';
 
 class SignUpScreen extends StatefulWidget {
   final VoidCallback onSignInPressed;
+  final VoidCallback onSignUpSuccess; 
 
-  const SignUpScreen({super.key, required this.onSignInPressed});
+  const SignUpScreen({super.key, required this.onSignInPressed, required this.onSignUpSuccess});
 
   @override
   SignUpScreenState createState() => SignUpScreenState();
 }
 
-class SignUpScreenState extends State<SignUpScreen>
-    with SingleTickerProviderStateMixin {
+class SignUpScreenState extends State<SignUpScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
   bool _obscurePassword = true;
@@ -47,7 +46,7 @@ class SignUpScreenState extends State<SignUpScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
-    _controller.forward(); // Start the animations
+    _controller.forward();
   }
 
   @override
@@ -59,8 +58,7 @@ class SignUpScreenState extends State<SignUpScreen>
   Future<void> _signUp() async {
     setState(() => _isLoading = true);
     try {
-      if (_passwordController.text.trim() !=
-          _confirmPasswordController.text.trim()) {
+      if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
         setState(() => _errorMessage = 'Passwords do not match');
         return;
       }
@@ -70,7 +68,7 @@ class SignUpScreenState extends State<SignUpScreen>
       );
 
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        widget.onSignUpSuccess();
       }
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = e.message);
@@ -83,14 +81,12 @@ class SignUpScreenState extends State<SignUpScreen>
     setState(() => _isLoading = true);
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        clientId:
-            '95411355053-lekorcvtk023dfai7n5h90tec992miuu.apps.googleusercontent.com',
+        clientId: '95411355053-lekorcvtk023dfai7n5h90tec992miuu.apps.googleusercontent.com',
       );
 
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) return;
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
       // Create Firebase credentials using Google token
       final AuthCredential credential = GoogleAuthProvider.credential(
@@ -102,9 +98,8 @@ class SignUpScreenState extends State<SignUpScreen>
       await FirebaseAuth.instance.signInWithCredential(credential);
 
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        widget.onSignUpSuccess();
       }
-
     } on FirebaseAuthException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {
@@ -171,8 +166,7 @@ class SignUpScreenState extends State<SignUpScreen>
                 if (_errorMessage != null)
                   Text(
                     _errorMessage!,
-                    style:
-                        const TextStyle(color: Colors.redAccent, fontSize: 14),
+                    style: const TextStyle(color: Colors.redAccent, fontSize: 14),
                   ),
 
                 const SizedBox(height: 16),
@@ -238,8 +232,7 @@ class SignUpScreenState extends State<SignUpScreen>
   }) {
     return Container(
       width: double.infinity,
-      constraints:
-          const BoxConstraints(maxWidth: 400),
+      constraints: const BoxConstraints(maxWidth: 400),
       child: TextField(
         controller: controller,
         obscureText: isPassword ? obscurePassword : false,
@@ -248,9 +241,7 @@ class SignUpScreenState extends State<SignUpScreen>
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
-                    obscurePassword
-                        ? FontAwesomeIcons.eyeSlash
-                        : FontAwesomeIcons.eye,
+                    obscurePassword ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye,
                     color: Colors.white,
                   ),
                   onPressed: () {
@@ -288,15 +279,13 @@ class SignUpScreenState extends State<SignUpScreen>
   }) {
     return Container(
       width: double.infinity,
-      constraints:
-          const BoxConstraints(maxWidth: 400),
+      constraints: const BoxConstraints(maxWidth: 400),
       child: ElevatedButton.icon(
         onPressed: onPressed,
         icon: icon != null ? Icon(icon, color: Colors.white) : Container(),
         label: Text(
           label,
-          style: const TextStyle(
-              color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
