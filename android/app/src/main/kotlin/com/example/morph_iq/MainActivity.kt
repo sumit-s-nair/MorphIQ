@@ -1,4 +1,4 @@
-package com.example.morph_iq
+package com.morphiq.app
 
 import io.flutter.embedding.android.FlutterActivity
 
