@@ -55,7 +55,7 @@ class FormDetailsPageState extends State<FormDetailsPage>
   }
 
   void _shareForm() {
-    final String formLink = "https://morph-iq.vercel.app/forms/$formId";
+    final String formLink = "https://morph-iq.vercel.app/#/forms/$formId";
     Clipboard.setData(ClipboardData(text: formLink));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Form link copied to clipboard')),
@@ -248,8 +248,7 @@ class FormDetailsPageState extends State<FormDetailsPage>
     return FutureBuilder<QuerySnapshot>(
       future: _firestore
           .collection('responses')
-          .doc(formId)
-          .collection('responsesData')
+          .where('formId', isEqualTo: formId)
           .get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -278,25 +277,92 @@ class FormDetailsPageState extends State<FormDetailsPage>
           itemCount: responses.length,
           itemBuilder: (context, index) {
             final response = responses[index];
-            final answers = response.data() as Map<String, dynamic>;
+            final Map<String, dynamic> answers =
+                response.data() as Map<String, dynamic>;
+
+            final responseDetails = answers['responses'] ?? {};
+            final submissionTime = answers['submittedAt'] is Timestamp
+                ? (answers['submittedAt'] as Timestamp).toDate()
+                : null;
+
             return Card(
-              color: Colors.grey[850],
-              margin: const EdgeInsets.symmetric(vertical: 8),
+              color: Colors.grey[900],
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              child: ListTile(
-                title: Text(
-                  'Response #${index + 1}',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                subtitle: Column(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: answers.entries.map((entry) {
-                    return Text(
-                      '${entry.key}: ${entry.value}',
-                      style: const TextStyle(color: Colors.grey),
-                    );
-                  }).toList(),
+                  children: [
+                    // Response Header
+                    Text(
+                      'Response #${index + 1}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Submission Time
+                    if (submissionTime != null)
+                      Text(
+                        'Submitted at: ${submissionTime.toString()}',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+
+                    const Divider(color: Colors.grey),
+
+                    // Response Content
+                    ...responseDetails.entries.map((entry) {
+                      String key = entry.key;
+                      dynamic value = entry.value;
+
+                      // Format Timestamp to readable date string
+                      if (value is Timestamp) {
+                        value = value.toDate().toString();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Key (Label)
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                key,
+                                style: const TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+
+                            // Value
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                value.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ],
                 ),
               ),
             );
